@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Rebecca!</title>
+    <style>
+        /* 像素风核心样式 */
+        * {
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #000; overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            user-select: none;
+        }
+
+        /* 场景通用控制 */
+        .scene {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; overflow: hidden;
+        }
+        .scene.active { display: flex; }
+
+        /* ================= 第一幕：开场小人与爆裂大字 ================= */
+        #scene-1 { background-color: #000; cursor: pointer; }
+        #intro-canvas { width: 100vw; height: 100vh; position: absolute; z-index: 1; }
+        
+        .pixel-title {
+            position: absolute; z-index: 2; opacity: 0; scale: 0.1;
+            font-size: 4rem; font-weight: 900; text-align: center;
+            color: #FF69B4; 
+            text-shadow: 
+                -3px -3px 0 #FFF,  3px -3px 0 #FFF, -3px  3px 0 #FFF,  3px  3px 0 #FFF,
+                -6px -6px 0 #FFB6C1, 6px -6px 0 #FFB6C1, -6px  6px 0 #FFB6C1, 6px  6px 0 #FFB6C1,
+                8px 8px 0px #333;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            pointer-events: none;
+        }
+        .title-bang {
+            animation: titleExplode 1.5s cubic-bezier(0.12, 0, 0.39, 0) forwards;
+        }
+        @keyframes titleExplode {
+            0% { opacity: 0; scale: 0.1; filter: drop-shadow(0 0 0px #FFF); }
+            50% { opacity: 1; scale: 1.2; filter: drop-shadow(0 0 50px #FFF); }
+            100% { opacity: 1; scale: 1; filter: drop-shadow(0 0 10px transparent); }
+        }
+
+        #music-control {
+            position: fixed; top: 20px; right: 20px; z-index: 999;
+            background: rgba(0,0,0,0.6); border: 2px solid #FFF; color: #FFF;
+            padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
+        }
+
+        /* ================= 第二幕：婴儿期 (粉色背景) ================= */
+        #scene-2 { 
+            background-color: #FFC0CB; 
+            transition: background-color 1s;
+        }
+        .floating-wishes {
+            position: absolute; width: 100%; height: 100%; pointer-events: none;
+        }
+        .wish-text {
+            position: absolute; font-size: 1.2rem; font-weight: bold; color: #FFF;
+            text-shadow: 2px 2px 0px #FF69B4; opacity: 0.8;
+            animation: floatUpDown 4s infinite ease-in-out alternate;
+        }
+        .portrait-container {
+            position: relative; z-index: 10; cursor: pointer; text-align: center;
+        }
+        .portrait-img {
+            width: 220px; height: 220px; object-fit: contain;
+            animation: gentleSway 3s infinite ease-in-out;
+            transition: transform 1s ease-in-out, opacity 0.5s;
+        }
+        @keyframes gentleSway {
+            0% { transform: rotate(-5deg) translateY(0); }
+            50% { transform: rotate(5deg) translateY(-10px); }
+            100% { transform: rotate(-5deg) translateY(0); }
+        }
+        @keyframes floatUpDown {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-20px); }
+        }
+
+        /* ================= 第三幕：儿童期 (旋转过渡) ================= */
+        .spin-transition {
+            transform: rotate(720deg) scale(0);
+            opacity: 0;
+        }
+
+        /* ================= 第四幕：航线地图 ================= */
+        #scene-4 {
+            background-color: #0b0b16;
+        }
+        .map-container {
+            position: relative; width: 1000px; height: 500px; z-index: 2;
+        }
+        .flight-routes {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+        }
+        .route-line {
+            fill: none; stroke: #FF69B4; stroke-width: 4;
+            stroke-dasharray: 8 8; stroke-linecap: square;
+            animation: dash 30s linear infinite;
+        }
+        @keyframes dash { to { stroke-dashoffset: -1000; } }
+        
+        .pixel-land {
+            fill: #1e1e38;
+            stroke: #2e2e54;
+            stroke-width: 2;
+        }
+
+        .city-dot {
+            position: absolute; width: 10px; height: 10px; background: #FFF;
+            border: 2px solid #FF69B4; transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px #FFF;
+            z-index: 10;
+        }
+        .city-label {
+            position: absolute; color: #FFF; font-size: 12px;
+            text-shadow: 1px 1px 0 #000; transform: translate(-50%, 10px);
+            white-space: nowrap; font-weight: bold;
+        }
+
+        /* ================= 第五幕：像素相册 (支持多页切换) ================= */
+        .book-container {
+            position: relative; width: 550px; height: 400px;
+            background: #4a2e1b; border: 8px solid #2b1a10;
+            box-shadow: 0 15px 0px #1a100a, 0 25px 30px rgba(0,0,0,0.7);
+            border-radius: 4px; z-index: 10; cursor: pointer;
+        }
+        .book-page {
+            position: absolute; width: 100%; height: 100%;
+            background: #f4edd4; padding: 30px;
+            display: none; grid-template-columns: 1fr 1fr; gap: 20px;
+            align-items: center; border-left: 4px dashed #dcd4b8;
+        }
+        .book-page.active { display: grid; }
+        .page-photo {
+            width: 100%; height: 300px; object-fit: cover;
+            border: 6px solid #FFF; box-shadow: 2px 4px 0px rgba(0,0,0,0.15);
+        }
+        .page-text-box {
+            background: #fffdf6; border: 3px solid #8b7355;
+            padding: 15px; height: 300px; overflow-y: auto;
+            font-size: 14px; color: #4a3c31; line-height: 1.6;
+        }
+        .click-tip {
+            position: absolute; bottom: 15px; right: 25px;
+            color: #8b5a2b; font-size: 12px; animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <audio id="bgm" src="birthday-bgm.mp3" loop></audio>
+    <button id="music-control" onclick="toggleMusic(event)">🎵 Music: Off</button>
+
+    <div id="scene-1" class="scene active" onclick="startEverything()">
+        <canvas id="intro-canvas"></canvas>
+        <div class="pixel-title" id="main-title">Happy birthday for<br>Rebecca Kress</div>
+    </div>
+
+    <div id="scene-2" class="scene">
+        <div class="floating-wishes" id="wishes-layer-1"></div>
+        <div class="portrait-container" onclick="nextAgeStage()">
+            <img src="./images/baby.png" class="portrait-img" id="age-portrait">
+            <p style="color: #666; font-size: 12px; margin-top: 20px;">[ Click anywhere to continue ]</p>
+        </div>
+    </div>
+
+    <div id="scene-4" class="scene" onclick="goToAlbum()">
+        <div class="map-container">
+            <svg class="flight-routes" viewBox="0 0 1000 500" width="100%" height="100%">
+                <defs>
+                    <pattern id="pixel-dot" width="10" height="10" patternUnits="userSpaceOnUse">
+                        <circle cx="5" cy="5" r="1.5" fill="rgba(255, 255, 255, 0.1)" />
+                    </pattern>
+                </defs>
+                <rect width="1000" height="500" fill="url(#pixel-dot)" />
+
+                <path class="pixel-land" d="M 220 80 L 400 60 L 600 80 L 850 100 L 900 180 L 850 320 L 750 350 L 600 300 L 500 280 L 400 320 L 350 250 L 250 220 Z" />
+                <path class="pixel-land" d="M 280 230 L 420 230 L 450 300 L 380 440 L 320 420 L 280 320 Z" />
+                <path class="pixel-land" d="M 30 100 L 150 120 L 120 220 L 50 200 Z" opacity="0.3"/>
+                <path class="pixel-land" d="M 80 230 L 160 250 L 190 380 L 120 450 L 70 350 Z" opacity="0.3"/>
+
+                <path d="M 350 140 Q 340 220 390 310" class="route-line" />
+                <path d="M 350 140 Q 430 130 520 160" class="route-line" />
+                <path d="M 350 140 Q 530 160 720 240" class="route-line" />
+                <path d="M 350 140 Q 580 140 810 220" class="route-line" />
+                <path d="M 350 140 Q 550 260 760 380" class="route-line" />
+            </svg>
+
+            <div class="city-dot" style="left: 35%; top: 28%; border-color: #FFF; background: #FF69B4; width:12px; height:12px;">
+                <div class="city-label" style="color: #FFB6C1;">📍 Germany (Home)</div>
+            </div>
+            <div class="city-dot" style="left: 39%; top: 62%;"><div class="city-label">Kenya</div></div>
+            <div class="city-dot" style="left: 52%; top: 32%;"><div class="city-label">Kazakhstan</div></div>
+            <div class="city-dot" style="left: 72%; top: 48%;"><div class="city-label">Chongqing</div></div>
+            <div class="city-dot" style="left: 81%; top: 44%;"><div class="city-label">Shanghai</div></div>
+            <div class="city-dot" style="left: 76%; top: 76%;"><div class="city-label">Singapore</div></div>
+        </div>
+        
+        <p style="color: #fff; z-index:10; font-size: 14px; margin-top: 30px; text-shadow: 1px 1px 2px #000; letter-spacing: 1px;">
+            Rebecca in da world
+        </p>
+        <p style="color: rgba(255,255,255,0.4); z-index:10; font-size: 11px; margin-top: -5px;">[ Click to open her Album ]</p>
+    </div>
+
+    <div id="scene-5" class="scene">
+        <div class="book-container" onclick="turnPage()">
+            
+            <div class="book-page active">
+                <img src="./images/photo1.png" class="page-photo">
+                <div class="page-text-box">
+                    <h3>never got to know I'll meet my bestie there..</h3>
+                    <p>You were so sharp, kind and insightful at first sight!</p>
+                </div>
+                <div class="click-tip">click (1/5) ▶</div>
+            </div>
+
+            <div class="book-page">
+                <img src="./images/photo2.png" class="page-photo">
+                <div class="page-text-box">
+                    <h3>And thoughtful!</h3>
+                    <p>You made my trip❤️</p>
+                </div>
+                <div class="click-tip">click (2/5) ▶</div>
+            </div>
+
+            <div class="book-page">
+                <img src="./images/photo3.png" class="page-photo">
+                <div class="page-text-box">
+                    <h3>How blessed am I to meet you...</h3>
+                    <p>Bigger world waiting for ya ahead!</p>
+                </div>
+                <div class="click-tip">click (3/5) ▶</div>
+            </div>
+
+            <div class="book-page">
+                <img src="./images/photo4.png" class="page-photo">
+                <div class="page-text-box">
+                    <h3>It was your 30th Bday when we meet.</h3>
+                    <p>So glad I accompanied you in the past year!</p>
+                </div>
+                <div class="click-tip">click (4/5) ▶</div>
+            </div>
+
+            <div class="book-page">
+                <img src="./images/photo5.png" class="page-photo">
+                <div class="page-text-box">
+                    <h3>Alles Gute zum Geburtstag!!!</h3>
+                    <p>We got a whole world to explore together🥰 And btw I wrote the song myself:))))</p>
+                </div>
+                <div class="click-tip">Back to first page (5/5) ◀</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ================= 背景音乐逻辑 =================
+        const bgm = document.getElementById('bgm');
+        const musicBtn = document.getElementById('music-control');
+        let musicStarted = false;
+
+        function startMusic() {
+            if (!musicStarted) {
+                bgm.play().then(() => {
+                    musicBtn.innerText = "🎵 Music: On";
+                    musicStarted = true;
+                }).catch(err => console.log("等待交互触发播放", err));
+            }
+        }
+
+        function toggleMusic(e) {
+            e.stopPropagation(); 
+            if (bgm.paused) {
+                bgm.play();
+                musicBtn.innerText = "🎵 Music: On";
+            } else {
+                bgm.pause();
+                musicBtn.innerText = "🎵 Music: Off";
+            }
+        }
+
+        function startEverything() {
+            startMusic();
+        }
+
+        // ================= 第一幕：Canvas像素小人逻辑 (超级放大版) =================
+        const canvas = document.getElementById('intro-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const sprite = [
+            [0,0,1,1,1,1,0,0],
+            [0,1,1,3,1,3,1,0],
+            [0,1,1,1,1,1,1,0],
+            [0,0,2,2,2,2,0,0],
+            [0,2,2,2,2,2,2,0],
+            [0,2,2,2,2,2,2,0],
+            [0,0,2,2,2,2,0,0],
+            [0,0,3,0,0,3,0,0]
+        ];
+        
+        const pixelSize = 18; // 大号像素尺寸
+
+        let guyX = -150;
+        let guyY = canvas.height / 2 - (8 * pixelSize) / 2;
+        let jumpOffset = 0;
+        let jumpCount = 0;
+        let stage = 'walking'; 
+
+        function drawSprite(x, y) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let r = 0; r < sprite.length; r++) {
+                for (let c = 0; c < sprite[r].length; c++) {
+                    if (sprite[r][c] !== 0) {
+                        if (sprite[r][c] === 1) ctx.fillStyle = '#FFE4C4'; 
+                        if (sprite[r][c] === 2) ctx.fillStyle = '#FF69B4'; 
+                        if (sprite[r][c] === 3) ctx.fillStyle = '#333333'; 
+                        ctx.fillRect(x + c * pixelSize, y + r * pixelSize, pixelSize, pixelSize);
+                    }
+                }
+            }
+        }
+
+        function animateIntro() {
+            let targetX = canvas.width / 2 - (8 * pixelSize) / 2;
+            
+            if (stage === 'walking') {
+                guyX += 4;
+                let walkY = guyY + Math.sin(guyX * 0.05) * 8;
+                drawSprite(guyX, walkY);
+                
+                if (guyX >= targetX) {
+                    guyX = targetX;
+                    stage = 'jumping';
+                }
+                requestAnimationFrame(animateIntro);
+            } else if (stage === 'jumping') {
+                if (jumpCount < 2) {
+                    let jumpTime = Date.now() * 0.015;
+                    jumpOffset = Math.abs(Math.sin(jumpTime)) * -60; 
+                    drawSprite(guyX, guyY + jumpOffset);
+                    
+                    if (jumpOffset < -56) {
+                        if (!this.triggered) { jumpCount++; this.triggered = true; }
+                    } else if (jumpOffset > -4) {
+                        this.triggered = false;
+                    }
+                    requestAnimationFrame(animateIntro);
+                } else {
+                    stage = 'done';
+                    triggerTitleBang();
+                }
+            }
+        }
+
+        setTimeout(animateIntro, 500);
+
+        function triggerTitleBang() {
+            startMusic(); 
+            const title = document.getElementById('main-title');
+            title.style.top = (canvas.height / 2 - 180) + 'px';
+            title.style.left = (canvas.width / 2 - title.offsetWidth / 2) + 'px';
+            title.classList.add('title-bang');
+
+            setTimeout(() => {
+                document.getElementById('scene-1').classList.remove('active');
+                document.getElementById('scene-2').classList.add('active');
+                initWishesStage2(); 
+            }, 1800);
+        }
+
+        // ================= 第二、三幕：年龄流转逻辑 =================
+        let ageStage = 2; 
+        const babyWishes = ["Alles Gute zum Geburtstag! 🍼", "Little Angel ✨", "Cute Rebecca 💕"];
+        const childWishes = ["Schultüte 🎒", "Kindheit in Deutschland 🇩🇪", "Gummibärchen 🧸", "Happy Child! 🚲"];
+
+        function initWishesStage2() {
+            const layer = document.getElementById('wishes-layer-1');
+            layer.innerHTML = '';
+            const wishes = ageStage === 2 ? babyWishes : childWishes;
+            
+            wishes.forEach((text, index) => {
+                const el = document.createElement('div');
+                el.className = 'wish-text';
+                el.innerText = text;
+                el.style.left = (15 + index * 22) + '%';
+                el.style.top = (20 + (index % 2) * 40) + '%';
+                el.style.animationDelay = (index * 0.5) + 's';
+                layer.appendChild(el);
+            });
+        }
+
+        function nextAgeStage() {
+            const img = document.getElementById('age-portrait');
+            
+            if (ageStage === 2) {
+                img.classList.add('spin-transition');
+                setTimeout(() => {
+                    img.src = "./images/child.png";
+                    ageStage = 3;
+                    initWishesStage2();
+                    document.getElementById('scene-2').style.backgroundColor = '#FFB6C1'; 
+                    img.classList.remove('spin-transition');
+                }, 1000);
+            } else if (ageStage === 3) {
+                document.getElementById('scene-2').classList.remove('active');
+                document.getElementById('scene-4').classList.add('active');
+            }
+        }
+
+        // ================= 第四幕：切入第五幕相册 =================
+        function goToAlbum() {
+            document.getElementById('scene-4').classList.remove('active');
+            document.getElementById('scene-5').classList.add('active');
+        }
+
+        // ================= 第五幕：像素相册翻页逻辑 =================
+        let currentPage = 0;
+        const pages = document.querySelectorAll('.book-page');
+
+        function turnPage() {
+            pages[currentPage].classList.remove('active');
+            currentPage = (currentPage + 1) % pages.length;
+            pages[currentPage].classList.add('active');
+        }
+    </script>
+</body>
+</html>
